@@ -1,10 +1,10 @@
-// backend/server.js
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-
+const os = require('os');
 
 
 const app = express();
@@ -138,7 +138,24 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'frontend-dist/index.html'));
 });
 
-// Start server
+function getIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const devName in interfaces) {
+    const iface = interfaces[devName];
+    for (let i = 0; i < iface.length; i++) {
+      const alias = iface[i];
+      if (alias.family === 'IPv4' && !alias.internal) {
+        return alias.address;
+      }
+    }
+  }
+  return 'localhost'; // Fallback to localhost if no external IP is found
+}
+
+const ipAddress = getIPAddress();
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://${ipAddress}:${PORT}`);
+  console.log(`Also accessible via http://localhost:${PORT}`);
 });
+
