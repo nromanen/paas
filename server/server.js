@@ -9,7 +9,15 @@ const os = require('os');
 
 const app = express();
 const PORT = 3000;
-const DATA_FILE = path.join(__dirname, 'products.json');
+// const DATA_FILE = path.join(__dirname, 'products.json');
+const DATA_FILE = [
+  {
+    "id": 2,
+    "name": "New",
+    "price": 34,
+    "description": "product"
+  }
+]
 
 // Middleware
 app.use(cors());
@@ -20,18 +28,21 @@ app.use(express.static(path.join(__dirname, 'frontend-dist')));
 
 
 // Initialize products file if it doesn't exist
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify([]));
-}
+// if (!fs.existsSync(DATA_FILE)) {
+  // fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+// }
 
 // Helper functions to read and write the data file
 const readProducts = () => {
-  const data = fs.readFileSync(DATA_FILE);
-  return JSON.parse(data);
+  // const data = fs.readFileSync(DATA_FILE);
+  // data = DATA_FILE;
+  // return JSON.parse(data);
+  return DATA_FILE;
 };
 
 const writeProducts = (products) => {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
+  // fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
+  // DATA_FILE = JSON.stringify(products, null, 2);
 };
 
 
@@ -74,10 +85,9 @@ app.post('/api/products', (req, res) => {
       price: req.body.price,
       description: req.body.description
     };
-    
+
     products.push(newProduct);
-    writeProducts(products);
-    
+    writeProducts(products);  
     res.status(201).json(newProduct);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create product' });
