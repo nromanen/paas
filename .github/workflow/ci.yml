@@ -1,0 +1,44 @@
+name: Build and Deploy Frontend
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+   workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: 'product-management-frontend/package-lock.json'
+          
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./product-management-frontend
+        
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./product-management-frontend
+        
+      - name: Copy build to server/frontend-dist
+        run: |
+          mkdir -p server/frontend-dist
+          cp -r product-management-frontend/dist/* server/frontend-dist/
+          
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add server/frontend-dist
+          git commit -m "Update frontend build" || echo "No changes to commit"
+          git push origin main
